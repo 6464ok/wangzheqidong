@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五人位置抽签系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            padding: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .players-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .player-tag {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .slot-machine {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .slot {
+            width: 180px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .slot:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .role {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffcc00;
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+        }
+        
+        .slot-container {
+            height: 80px;
+            overflow: hidden;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .slot-items {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transition: transform 0.1s linear;
+        }
+        
+        .slot-item {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px auto;
+            max-width: 800px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            text-align: left;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .role-icon {
+            width: 30px;
+            height: 30px;
+            background: #ffcc00;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a1a1a;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            margin: 30px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff9966, #ff5e62);
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(255, 94, 98, 0.4);
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 94, 98, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(45deg, #777, #555);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .message {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            margin: 25px auto;
+            display: none;
+        }
+        
+        /* 动画效果 */
+        @keyframes highlight {
+            0% { box-shadow: 0 0 5px rgba(255, 204, 0, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(255, 204, 0, 0.5); }
+        }
+        
+        .highlight {
+            animation: highlight 1.5s ease-in-out infinite;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .slot {
+                width: 150px;
+                padding: 15px 10px;
+            }
+            
+            .role {
+                font-size: 1.1rem;
+            }
+            
+            .slot-container {
+                height: 70px;
+            }
+            
+            .slot-item {
+                height: 70px;
+                font-size: 1.3rem;
+            }
+            
+            .btn {
+                padding: 14px 35px;
+                font-size: 1.1rem;
+            }
+            
+            .result-item {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .slot {
+                width: 130px;
+            }
+            
+            .role {
+                font-size: 1rem;
+            }
+            
+            .slot-container {
+                height: 60px;
+            }
+            
+            .slot-item {
+                height: 60px;
+                font-size: 1.1rem;
+            }
+            
+            .player-tag {
+                font-size: 0.9rem;
+                padding: 8px 15px;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>五人位置抽签系统</h1>
+            <p class="subtitle">随机分配玩家到不同位置，老虎机式动画效果，公平公正的抽签方式</p>
+        </header>
+        
+        <div class="players-info">
+            <div class="player-tag">杨俊</div>
+            <div class="player-tag">袁帅</div>
+            <div class="player-tag">周俊</div>
+            <div class="player-tag">晏鑫</div>
+            <div class="player-tag">周志忠</div>
+        </div>
+        
+        <div class="slot-machine">
+            <div class="slot" id="slot-0">
+                <div class="role">打野</div>
+                <div class="slot-container">
+                    <div class="slot-items" id="slot-items-0"></div>
+                </div>
+            </div>
+            <div class="slot" id="slot-1">
+                <div class="role">对抗</div>
+                <div class="slot-container">
+                    <div class="slot-items" id="slot-items-1"></div>
+                </div>
+            </div>
+            <div class="slot" id="slot-2">
+                <div class="role">中路</div>
+                <div class="slot-container">
+                    <div class="slot-items" id="slot-items-2"></div>
+                </div>
+            </div>
+            <div class="slot" id="slot-3">
+                <div class="role">游走</div>
+                <div class="slot-container">
+                    <div class="slot-items" id="slot-items-3"></div>
+                </div>
+            </div>
+            <div class="slot" id="slot-4">
+                <div class="role">发育</div>
+                <div class="slot-container">
+                    <div class="slot-items" id="slot-items-4"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="result">
+            <div class="result-title">当前分配结果</div>
+            <div class="result-grid" id="result-grid">
+                <!-- 结果将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="drawBtn">开始抽签</button>
+            <button class="btn" id="resetBtn">重置</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="footer">
+            五人位置抽签系统 &copy; 2023 | 公平随机分配
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 玩家和位置数据
+            const players = ['杨俊', '袁帅', '周俊', '晏鑫', '周志忠'];
+            const positions = ['打野', '对抗', '中路', '游走', '发育'];
+            
+            // DOM元素
+            const drawBtn = document.getElementById('drawBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const messageEl = document.getElementById('message');
+            const resultGrid = document.getElementById('result-grid');
+            
+            // 记录已使用的组合
+            let usedCombinations = [];
+            let currentAssignment = {};
+            
+            // 初始化老虎机
+            function initSlotMachine() {
+                positions.forEach((position, index) => {
+                    const slotItems = document.getElementById(`slot-items-${index}`);
+                    slotItems.innerHTML = '';
+                    
+                    // 创建足够多的名字项以实现滚动效果
+                    for (let i = 0; i < 30; i++) {
+                        const player = players[Math.floor(Math.random() * players.length)];
+                        const item = document.createElement('div');
+                        item.className = 'slot-item';
+                        item.textContent = player;
+                        slotItems.appendChild(item);
+                    }
+                    
+                    // 初始位置
+                    slotItems.style.transform = 'translateY(0)';
+                });
+                
+                // 初始化结果面板
+                updateResultPanel();
+            }
+            
+            // 更新结果面板
+            function updateResultPanel() {
+                resultGrid.innerHTML = '';
+                
+                positions.forEach(position => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    
+                    const roleIcon = document.createElement('div');
+                    roleIcon.className = 'role-icon';
+                    roleIcon.textContent = position.charAt(0);
+                    
+                    const text = document.createElement('div');
+                    text.innerHTML = `<strong>${position}:</strong> ${currentAssignment[position] || '未分配'}`;
+                    
+                    resultItem.appendChild(roleIcon);
+                    resultItem.appendChild(text);
+                    resultGrid.appendChild(resultItem);
+                });
+            }
+            
+            // 生成唯一的分配方案
+            function generateUniqueAssignment() {
+                if (usedCombinations.length >= 120) { // 5! = 120
+                    return null; // 所有组合已用完
+                }
+                
+                let assignment;
+                let assignmentStr;
+                
+                do {
+                    // 随机分配
+                    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+                    assignment = {};
+                    positions.forEach((position, index) => {
+                        assignment[position] = shuffledPlayers[index];
+                    });
+                    
+                    assignmentStr = JSON.stringify(assignment);
+                } while (usedCombinations.includes(assignmentStr));
+                
+                usedCombinations.push(assignmentStr);
+                return assignment;
+            }
+            
+            // 执行抽签动画
+            function drawAnimation() {
+                drawBtn.disabled = true;
+                messageEl.style.display = 'none';
+                
+                // 生成新的分配方案
+                const newAssignment = generateUniqueAssignment();
+                
+                if (!newAssignment) {
+                    messageEl.textContent = '所有可能的组合已用尽，请点击重置按钮重新开始';
+                    messageEl.style.display = 'block';
+                    drawBtn.disabled = false;
+                    return;
+                }
+                
+                currentAssignment = newAssignment;
+                
+                // 执行老虎机动画
+                positions.forEach((position, slotIndex) => {
+                    const slotItems = document.getElementById(`slot-items-${slotIndex}`);
+                    const targetPlayer = currentAssignment[position];
+                    
+                    // 找到目标玩家的位置
+                    let targetIndex = -1;
+                    const items = slotItems.querySelectorAll('.slot-item');
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].textContent === targetPlayer) {
+                            targetIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (targetIndex === -1) return;
+                    
+                    // 计算目标位置（确保在视口中间）
+                    const itemHeight = items[0].offsetHeight;
+                    const targetPosition = -(targetIndex * itemHeight);
+                    
+                    // 初始滚动
+                    slotItems.style.transition = 'none';
+                    slotItems.style.transform = `translateY(${-(items.length * itemHeight)}px)`;
+                    
+                    setTimeout(() => {
+                        // 添加过渡效果
+                        slotItems.style.transition = 'transform 0.5s ease-out';
+                        
+                        // 滚动到目标位置（带延迟，实现依次停止效果）
+                        setTimeout(() => {
+                            slotItems.style.transform = `translateY(${targetPosition}px)`;
+                            
+                            // 动画完成后高亮显示
+                            setTimeout(() => {
+                                document.getElementById(`slot-${slotIndex}`).classList.add('highlight');
+                                
+                                // 最后一个位置动画完成后更新结果
+                                if (slotIndex === positions.length - 1) {
+                                    setTimeout(() => {
+                                        updateResultPanel();
+                                        drawBtn.disabled = false;
+                                    }, 500);
+                                }
+                            }, 600);
+                        }, slotIndex * 600); // 每个位置间隔600ms停止
+                    }, 50);
+                });
+            }
+            
+            // 重置系统
+            function resetSystem() {
+                usedCombinations = [];
+                currentAssignment = {};
+                
+                // 移除高亮效果
+                positions.forEach((_, index) => {
+                    document.getElementById(`slot-${index}`).classList.remove('highlight');
+                });
+                
+                // 重置老虎机
+                initSlotMachine();
+                
+                messageEl.style.display = 'none';
+                drawBtn.disabled = false;
+            }
+            
+            // 事件监听
+            drawBtn.addEventListener('click', drawAnimation);
+            resetBtn.addEventListener('click', resetSystem);
+            
+            // 初始化
+            initSlotMachine();
+        });
+    </script>
+</body>
+</html>
